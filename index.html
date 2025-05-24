@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Animavideo 2.1</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+  }
+  #progressContainer {
+    width: 80%;
+    background-color: #ddd;
+    margin: 20px auto;
+    border-radius: 10px;
+  }
+  #progressBar {
+    width: 0%;
+    height: 30px;
+    background-color: #4caf50;
+    border-radius: 10px;
+  }
+  #videoContainer {
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Animavideo 2.1</h1>
+
+<button onclick="gerarVideo()">Gerar Vídeo</button>
+
+<div id="progressContainer">
+  <div id="progressBar"></div>
+</div>
+
+<div id="videoContainer">
+  <video id="videoOutput" width="640" height="360" controls style="display: none;">
+    <source src="" type="video/mp4">
+    Seu navegador não suporta o elemento de vídeo.
+  </video>
+</div>
+
+<script>
+function gerarVideo() {
+  let progressBar = document.getElementById("progressBar");
+  let width = 0;
+  let interval = setInterval(() => {
+    if (width >= 100) {
+      clearInterval(interval);
+      // Aqui você carregaria o vídeo gerado (exemplo: vídeo fictício)
+      let video = document.getElementById("videoOutput");
+      video.style.display = "block";
+      video.src = "video_exemplo.mp4"; // Substitua pelo caminho real do vídeo gerado
+      video.load();
+    } else {
+      width++;
+      progressBar.style.width = width + "%";
+    }
+  }, 50); // Intervalo de 50ms para a animação da barra de progresso
+}
+</script>
+
+</body>
+</html>
