@@ -1,68 +1,113 @@
 
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Animavideo 2.1</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f4f4f4;
-  }
-  #progressContainer {
-    width: 80%;
-    background-color: #ddd;
-    margin: 20px auto;
-    border-radius: 10px;
-  }
-  #progressBar {
-    width: 0%;
-    height: 30px;
-    background-color: #4caf50;
-    border-radius: 10px;
-  }
-  #videoContainer {
-    margin-top: 20px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>Animavideo2.1 - Editor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      text-align: center;
+    }
+    input[type="file"], input[type="text"], button {
+      margin: 10px;
+    }
+    #canvas {
+      border: 1px solid #fff;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Animavideo 2.1</h1>
+  <h1>Animavideo2.1 - Editor</h1>
 
-<button onclick="gerarVideo()">Gerar Vídeo</button>
+  <h2>1) Upload de Áudio</h2>
+  <input type="file" id="audioInput" accept="audio/*"><br/>
 
-<div id="progressContainer">
-  <div id="progressBar"></div>
-</div>
+  <h2>2) Upload de Sprites (ZIP ou imagens individuais)</h2>
+  <input type="file" id="spritesInput" multiple><br/>
 
-<div id="videoContainer">
-  <video id="videoOutput" width="640" height="360" controls style="display: none;">
-    <source src="" type="video/mp4">
-    Seu navegador não suporta o elemento de vídeo.
-  </video>
-</div>
+  <h2>3) Pontuações manuais (opcional)</h2>
+  <input type="text" id="pontoManual" placeholder="Tempo:Imagem (ex: 1.2: A.png)">
+  <button onclick="adicionarPontuacao()">Adicionar Pontuação</button><br/>
 
-<script>
-function gerarVideo() {
-  let progressBar = document.getElementById("progressBar");
-  let width = 0;
-  let interval = setInterval(() => {
-    if (width >= 100) {
-      clearInterval(interval);
-      // Aqui você carregaria o vídeo gerado (exemplo: vídeo fictício)
-      let video = document.getElementById("videoOutput");
-      video.style.display = "block";
-      video.src = "video_exemplo.mp4"; // Substitua pelo caminho real do vídeo gerado
-      video.load();
-    } else {
-      width++;
-      progressBar.style.width = width + "%";
+  <h2>4) Edição / Visualização</h2>
+  <button onclick="playAudio()">▶️ Play</button>
+  <button onclick="pauseAudio()">⏸️ Pause</button>
+  <button onclick="exportarVideo()">📹 Exportar</button><br/>
+
+  <canvas id="canvas" width="640" height="360"></canvas>
+
+  <script>
+    let audio = null;
+    let sprites = {};
+    let pontuacoes = [];
+    let ctx = document.getElementById('canvas').getContext('2d');
+
+    document.getElementById('audioInput').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        audio = new Audio(URL.createObjectURL(file));
+        console.log("Áudio carregado:", file.name);
+      }
+    });
+
+    document.getElementById('spritesInput').addEventListener('change', e => {
+      const files = e.target.files;
+      for (const file of files) {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        sprites[file.name] = img;
+      }
+      console.log("Sprites carregados:", Object.keys(sprites));
+    });
+
+    function adicionarPontuacao() {
+      const input = document.getElementById('pontoManual').value;
+      const [tempo, imagem] = input.split(':').map(item => item.trim());
+      pontuacoes.push({ tempo: parseFloat(tempo), imagem });
+      console.log("Pontuação adicionada:", { tempo: parseFloat(tempo), imagem });
+      document.getElementById('pontoManual').value = '';
     }
-  }, 50); // Intervalo de 50ms para a animação da barra de progresso
-}
-</script>
+
+    function playAudio() {
+      if (audio) {
+        audio.play();
+        requestAnimationFrame(update);
+      }
+    }
+
+    function pauseAudio() {
+      if (audio) {
+        audio.pause();
+      }
+    }
+
+    function update() {
+      if (!audio.paused) {
+        const currentTime = audio.currentTime;
+        ctx.clearRect(0, 0, 640, 360);
+
+        pontuacoes.forEach(p => {
+          if (Math.abs(p.tempo - currentTime) < 0.1) {
+            const img = sprites[p.imagem];
+            if (img) {
+              ctx.drawImage(img, 0, 0, 640, 360);
+            }
+          }
+        });
+
+        requestAnimationFrame(update);
+      }
+    }
+
+    function exportarVideo() {
+      alert("⚠️ Esta parte é complexa (precisaria usar bibliotecas tipo ffmpeg ou gravador de canvas). No navegador puro, só exporta frames como imagens. Quer que eu sugira bibliotecas depois?");
+    }
+  </script>
 
 </body>
 </html>
